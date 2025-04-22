@@ -63,14 +63,22 @@ with tab2:
 
 with tab3:
     st.subheader("🕸️ Radar chart por caso individual")
+
     radar_vars = ["Z_COE", "Z_INFO", "Z_TE", "AE_Total"]
-    df_radar = df[["CARRERA"] + radar_vars].copy()
-    df_radar = df_radar.dropna(subset=radar_vars)  # << CORRECCIÓN CLAVE
+
+    # Asegurar numéricos y limpiar filas con NaNs
+    for var in radar_vars:
+        df[var] = pd.to_numeric(df[var], errors='coerce')
+
+    df_radar = df[["CARRERA"] + radar_vars].dropna().copy()
     df_radar["ID"] = df_radar.index.astype(str)
 
     if not df_radar.empty:
+        df_melted = df_radar.melt(id_vars=["CARRERA", "ID"], value_vars=radar_vars)
+        df_melted = df_melted.dropna()
+
         fig = px.line_polar(
-            df_radar.melt(id_vars=["CARRERA", "ID"], value_vars=radar_vars),
+            df_melted,
             r="value",
             theta="variable",
             color="CARRERA",
