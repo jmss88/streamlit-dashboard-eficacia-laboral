@@ -65,6 +65,7 @@ with tab3:
     st.subheader("🕸️ Radar chart por caso individual")
     radar_vars = ["Z_COE", "Z_INFO", "Z_TE", "AE_Total"]
     df_radar = df[["CARRERA"] + radar_vars].copy()
+    df_radar = df_radar.dropna(subset=radar_vars)  # << CORRECCIÓN CLAVE
     df_radar["ID"] = df_radar.index.astype(str)
 
     if not df_radar.empty:
@@ -80,7 +81,7 @@ with tab3:
         fig.update_traces(opacity=0.4)
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.warning("No hay datos suficientes para mostrar el radar chart.")
+        st.warning("No hay datos válidos para mostrar el radar chart.")
 
 with tab4:
     st.subheader(f"📊 Frecuencia de {var_cat} por Carrera")
