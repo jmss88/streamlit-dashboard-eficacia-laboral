@@ -4,8 +4,8 @@ import pandas as pd
 import altair as alt
 
 st.set_page_config(page_title="Visor Psicoeducativo", page_icon="🧠", layout="wide")
-st.title("🧠 Dashboard Psicoeducativo")
-st.write("Visualiza y compara información de distintos estudios en un solo lugar.")
+st.title("🧠 Visor Psicoeducativo")
+st.write("Visualiza y compara información de distintas investigaciones realizadas en este laboratorio.")
 
 @st.cache_data
 def load_eficacia():
