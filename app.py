@@ -13,7 +13,7 @@ def load_eficacia():
 
 @st.cache_data
 def load_ansiedad():
-    return pd.read_csv("factor1muestraoriginal.arff.csv")
+    return pd.read_csv("DATOS_ANSIEDAD_C1_APP.arff.csv")
 
 # Tabs principales
 main_tab1, main_tab2 = st.tabs(["📊 Eficacia Laboral", "📚 Ansiedad Académica"])
@@ -97,8 +97,13 @@ with main_tab2:
     st.header("📚 Visualización de Ansiedad Académica")
     df2 = load_ansiedad()
 
-    st.markdown("### 📋 Niveles de ansiedad (variable `CF1`)")
-    conteo_cf1 = df2["CF1"].value_counts().reset_index()
+    carreras2 = df2["CARRERA"].dropna().unique().tolist()
+    carreras_sel2 = st.multiselect("Selecciona carrera(s):", carreras2, default=carreras2, key="carreras_ansiedad")
+    df2 = df2[df2["CARRERA"].isin(carreras_sel2)]
+
+    var_cf1 = "CF1"
+    st.subheader("📊 Frecuencia de niveles de ansiedad (CF1)")
+    conteo_cf1 = df2[var_cf1].value_counts().reset_index()
     conteo_cf1.columns = ["Nivel de Ansiedad", "Frecuencia"]
 
     bar_cf1 = (
@@ -113,5 +118,21 @@ with main_tab2:
     )
     st.altair_chart(bar_cf1, use_container_width=True)
 
-    st.markdown("### 📄 Tabla de respuestas por ítem")
+    st.subheader("📈 Histograma por ítem")
+    items_ansiedad = [col for col in df2.columns if col.startswith("F1")]
+    if items_ansiedad:
+        var_item = st.selectbox("Selecciona un ítem:", items_ansiedad)
+        hist_item = (
+            alt.Chart(df2)
+            .mark_bar()
+            .encode(
+                x=alt.X(f"{var_item}:Q", bin=alt.Bin(maxbins=3)),
+                y=alt.Y("count()", title="Frecuencia"),
+                color="CARRERA:N"
+            )
+            .properties(height=400)
+        )
+        st.altair_chart(hist_item, use_container_width=True)
+
+    st.subheader("📄 Tabla de respuestas por ítem")
     st.dataframe(df2, use_container_width=True)
