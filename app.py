@@ -102,7 +102,7 @@ with main_tab2:
     df2 = df2[df2["CARRERA"].isin(carreras_sel2)]
 
     vars_continuas2 = df2.select_dtypes(include=["float64", "int64"]).columns.tolist()
-    vars_categ2 = ["CF1", "CARRERA"]
+    vars_categ2 = ["CF1"]  # Eliminamos CARRERA para evitar conflicto
     var_sel2 = st.selectbox("📊 Variable continua a graficar:", vars_continuas2, key="var_ansiedad")
 
     tab5, tab6, tab7, tab8 = st.tabs([
