@@ -13,12 +13,12 @@ st.write("Explora los datos del estudio de eficacia laboral por niveles de autoe
 def load_data():
     return pd.read_csv("dataset_limpio_para_app.csv")
 
-df = load_data()
+df_original = load_data()
+df = df_original.copy()
 
-# Filtros
+# Filtros independientes
 st.sidebar.header("🔍 Filtros")
 
-# Lista de columnas categóricas a incluir como filtros
 filtros_categoricos = [
     "CARRERA",
     "NIVEL_AE_COE",
@@ -27,12 +27,19 @@ filtros_categoricos = [
     "Nivel_AE_TOTAL"
 ]
 
-# Aplicar filtros dinámicos por cada columna categórica
+selecciones = {}
+
 for columna in filtros_categoricos:
-    if columna in df.columns:
-        opciones = df[columna].dropna().unique().tolist()
-        seleccionadas = st.sidebar.multiselect(f"Filtrar por {columna}:", opciones, default=opciones)
-        df = df[df[columna].isin(seleccionadas)]
+    if columna in df_original.columns:
+        opciones = df_original[columna].dropna().unique().tolist()
+        seleccionadas = st.sidebar.multiselect(
+            f"Filtrar por {columna}:", opciones, default=opciones
+        )
+        selecciones[columna] = seleccionadas
+
+# Aplicar todos los filtros sobre el df original
+for col, vals in selecciones.items():
+    df = df[df[col].isin(vals)]
 
 # Filtro por variable numérica para graficar
 variables_numericas = df.select_dtypes(include=["float64", "int64"]).columns.tolist()
