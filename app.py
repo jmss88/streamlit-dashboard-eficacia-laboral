@@ -6,7 +6,7 @@ import altair as alt
 st.set_page_config(page_title="Dashboard de Eficacia Laboral", page_icon="📊", layout="wide")
 
 st.title("📊 Dashboard de Eficacia Laboral")
-st.write("Explora los datos del estudio de eficacia laboral por niveles de autoeficacia, variables y puntajes.")
+st.write("Explora los datos del estudio de eficacia laboral por niveles de autoeficacia, variables, carreras y puntajes.")
 
 # Cargar datos
 @st.cache_data
@@ -20,6 +20,7 @@ st.sidebar.header("🔍 Filtros")
 
 # Lista de columnas categóricas a incluir como filtros
 filtros_categoricos = [
+    "CARRERA",
     "NIVEL_AE_COE",
     "NIVEL_AE_INFO",
     "NIVEL_AE_TE",
