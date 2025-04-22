@@ -18,16 +18,22 @@ df = load_data()
 # Filtros
 st.sidebar.header("🔍 Filtros")
 
-# Filtro por nivel de AE (si existe)
-if "NIVEL_AE_COE" in df.columns:
-    nivel_ae = st.sidebar.multiselect(
-        "Nivel de AE (COE):",
-        options=df["NIVEL_AE_COE"].unique().tolist(),
-        default=df["NIVEL_AE_COE"].unique().tolist()
-    )
-    df = df[df["NIVEL_AE_COE"].isin(nivel_ae)]
+# Lista de columnas categóricas a incluir como filtros
+filtros_categoricos = [
+    "NIVEL_AE_COE",
+    "NIVEL_AE_INFO",
+    "NIVEL_AE_TE",
+    "Nivel_AE_TOTAL"
+]
 
-# Filtro por variable para graficar
+# Aplicar filtros dinámicos por cada columna categórica
+for columna in filtros_categoricos:
+    if columna in df.columns:
+        opciones = df[columna].dropna().unique().tolist()
+        seleccionadas = st.sidebar.multiselect(f"Filtrar por {columna}:", opciones, default=opciones)
+        df = df[df[columna].isin(seleccionadas)]
+
+# Filtro por variable numérica para graficar
 variables_numericas = df.select_dtypes(include=["float64", "int64"]).columns.tolist()
 var_grafico = st.sidebar.selectbox("Selecciona variable a graficar:", variables_numericas)
 
@@ -36,17 +42,18 @@ st.subheader("📋 Datos filtrados")
 st.dataframe(df, use_container_width=True)
 
 # Mostrar gráfica de barras promedio por grupo
-if "NIVEL_AE_COE" in df.columns:
-    st.subheader(f"📈 Promedio de '{var_grafico}' por Nivel de AE (COE)")
-    df_bar = df.groupby("NIVEL_AE_COE")[var_grafico].mean().reset_index()
-    chart = (
-        alt.Chart(df_bar)
-        .mark_bar()
-        .encode(
-            x=alt.X("NIVEL_AE_COE", title="Nivel AE"),
-            y=alt.Y(var_grafico, title=f"Promedio de {var_grafico}"),
-            color="NIVEL_AE_COE"
-        )
-        .properties(height=400)
+grupo_base = "Nivel_AE_TOTAL" if "Nivel_AE_TOTAL" in df.columns else "NIVEL_AE_COE"
+
+st.subheader(f"📈 Promedio de '{var_grafico}' por {grupo_base}")
+df_bar = df.groupby(grupo_base)[var_grafico].mean().reset_index()
+chart = (
+    alt.Chart(df_bar)
+    .mark_bar()
+    .encode(
+        x=alt.X(grupo_base, title=grupo_base),
+        y=alt.Y(var_grafico, title=f"Promedio de {var_grafico}"),
+        color=grupo_base
     )
-    st.altair_chart(chart, use_container_width=True)
+    .properties(height=400)
+)
+st.altair_chart(chart, use_container_width=True)
